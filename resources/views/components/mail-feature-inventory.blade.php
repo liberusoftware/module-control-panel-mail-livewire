@@ -1,0 +1,34 @@
+<section>
+    <h2>{{ __('Mail domains') }}</h2>
+    <ul>
+        @forelse ($domains as $domain)
+            <li wire:key="domain-{{ $domain->getKey() }}">{{ $domain->domain }} — {{ $domain->status }}
+                <button type="button" wire:click="configureAuthentication('{{ $domain->getKey() }}', { spf_enabled: true, dkim_enabled: true, dmarc_enabled: true })">{{ __('Refresh authentication records') }}</button>
+            </li>
+        @empty
+            <li>{{ __('No mail domains found.') }}</li>
+        @endforelse
+    </ul>
+    <h2>{{ __('Mail routes') }}</h2>
+    <ul>
+        @forelse ($routes as $route)
+            <li wire:key="route-{{ $route->getKey() }}">{{ $route->domain }} — <form wire:submit="updateRoute('{{ $route->getKey() }}', null)" class="inline"><input aria-label="{{ __('Route source pattern') }}" wire:model="routeEdits.{{ $route->getKey() }}.source_pattern" value="{{ $route->source_pattern }}"><input aria-label="{{ __('Route destination') }}" wire:model="routeEdits.{{ $route->getKey() }}.destination" value="{{ $route->destination }}"><button type="submit">{{ __('Save') }}</button></form> <button type="button" wire:click="deleteRoute('{{ $route->getKey() }}')">{{ __('Delete') }}</button></li>
+        @empty
+            <li>{{ __('No mail routes found.') }}</li>
+        @endforelse
+    </ul>
+    <h2>{{ __('Mail aliases and delivery diagnostics') }}</h2>
+    <ul>@forelse ($aliases as $alias)<li wire:key="alias-{{ $alias->getKey() }}">{{ $alias->address }}@{{ $alias->domain }} <form wire:submit="updateAlias('{{ $alias->getKey() }}', null)"><input aria-label="{{ __('Alias domain') }}" wire:model="aliasEdits.{{ $alias->getKey() }}.domain" value="{{ $alias->domain }}"><input aria-label="{{ __('Alias address') }}" wire:model="aliasEdits.{{ $alias->getKey() }}.address" value="{{ $alias->address }}"><button type="submit">{{ __('Save') }}</button></form> <button type="button" wire:click="deleteAlias('{{ $alias->getKey() }}')">{{ __('Delete') }}</button></li>@empty<li>{{ __('No aliases found.') }}</li>@endforelse</ul>
+    {{ $aliases->links() }}
+    <h3>{{ __('Recent diagnostics') }}</h3><ul>@forelse ($diagnostics as $diagnostic)<li wire:key="diagnostic-{{ $diagnostic->getKey() }}">{{ $diagnostic->recipient }} — {{ $diagnostic->status }}</li>@empty<li>{{ __('No diagnostics found.') }}</li>@endforelse</ul>
+    <h3>{{ __('DKIM keys') }}</h3>
+    <ul>
+        @forelse ($dkimKeys as $key)
+            <li wire:key="dkim-{{ $key->getKey() }}">{{ $key->selector }}._domainkey.{{ $key->domain }} — {{ __('active') }}
+                <button type="button" wire:click="rotateDkim('{{ $key->domain }}')">{{ __('Rotate') }}</button>
+            </li>
+        @empty
+            <li>{{ __('No DKIM keys found.') }}</li>
+        @endforelse
+    </ul>
+</section>
